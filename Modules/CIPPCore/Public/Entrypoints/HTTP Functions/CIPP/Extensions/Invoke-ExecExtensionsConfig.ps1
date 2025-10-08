@@ -1,5 +1,3 @@
-using namespace System.Net
-
 Function Invoke-ExecExtensionsConfig {
     <#
     .FUNCTIONALITY
@@ -9,10 +7,8 @@ Function Invoke-ExecExtensionsConfig {
     #>
     [CmdletBinding()]
     param($Request, $TriggerMetadata)
-
-    $APIName = $Request.Params.CIPPEndpoint
     $Headers = $Request.Headers
-    Write-LogMessage -headers $Headers -API $APIName -message 'Accessed this API' -Sev 'Debug'
+
 
     $Body = [PSCustomObject]$Request.Body
     $Results = try {
@@ -38,7 +34,7 @@ Function Invoke-ExecExtensionsConfig {
                 Write-Information 'Not sending to keyvault. Key previously set or left blank.'
             } else {
                 Write-Information 'writing API Key to keyvault, and clearing.'
-                Write-Information "$ENV:WEBSITE_DEPLOYMENT_ID"
+                Write-Information "$env:WEBSITE_DEPLOYMENT_ID"
                 if ($Body.$APIKey.APIKey) {
                     Set-ExtensionAPIKey -Extension $APIKey -APIKey $Body.$APIKey.APIKey
                 }
@@ -77,8 +73,7 @@ Function Invoke-ExecExtensionsConfig {
 
 
 
-    # Associate values to output bindings by calling 'Push-OutputBinding'.
-    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+    return ([HttpResponseContext]@{
             StatusCode = [HttpStatusCode]::OK
             Body       = @{'Results' = $Results }
         })
